@@ -15,8 +15,15 @@ public class RegistroAcesso {
     public void registrarSaida() {
         this.saida = LocalDateTime.now();
     }
+    public void getPlaca(){
+        return veiculo.getPlaca();
+    }
+    public void getPessoa(){
+        return pessoa.getNome();
+    }
 
     public double calcularValor() {
+        /// Verificar calculo de tarifa
         long minutos = java.time.Duration.between(entrada, saida).toMinutes();
         return pessoa.calcularTarifa(minutos);
     }
