@@ -8,4 +8,8 @@ public class Veiculo {
     }
 
     // Getters e Setters
+
+    public String getPlaca() {
+        return placa;
+    }
 }

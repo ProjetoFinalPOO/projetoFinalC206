@@ -19,7 +19,7 @@ public class Estacionamento {
 
     public void registrarSaida(String placa) {
         for (RegistroAcesso registro : registros) {
-            if (registro.getPlaca().equals(placa) && r.saida == null) {
+            if (registro.getPlaca().equals(placa) && registro.saida == null) {
                 registro.registrarSaida();
                 double valor = registro.calcularValor();
                 System.out.println("Valor a pagar: R$ " + valor);

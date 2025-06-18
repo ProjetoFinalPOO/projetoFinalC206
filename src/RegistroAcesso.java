@@ -15,11 +15,11 @@ public class RegistroAcesso {
     public void registrarSaida() {
         this.saida = LocalDateTime.now();
     }
-    public void getPlaca(){
-        return veiculo.getPlaca();
+    public String getPlaca(){
+        return this.veiculo.getPlaca();
     }
-    public void getPessoa(){
-        return pessoa.getNome();
+    public String getPessoa(){
+        return this.pessoa.getNome();
     }
 
     public double calcularValor() {
