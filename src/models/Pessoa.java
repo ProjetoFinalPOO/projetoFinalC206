@@ -1,3 +1,5 @@
+package models;
+
 public abstract class Pessoa {
     private String nome;
     private String documento;
@@ -20,5 +22,4 @@ public abstract class Pessoa {
         this.documento = documento;
     }
 
-    public abstract double calcularTarifa(long minutosEstacionado);
 }
