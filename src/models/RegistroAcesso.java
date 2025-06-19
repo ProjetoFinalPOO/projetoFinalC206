@@ -1,19 +1,19 @@
 package models;
-import java.time.LocalDateTime;
 import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class RegistroAcesso {
     
+    private int id;
     private Pessoa pessoa;
     private Veiculo veiculo;
     private LocalDateTime entrada;
     private LocalDateTime saida;
-    private int id;
 
     public RegistroAcesso(Pessoa pessoa, Veiculo veiculo, int idVaga) {
+        this.id = idVaga;
         this.pessoa = pessoa;
         this.veiculo = veiculo;
-        this.id = idVaga;
         this.entrada = LocalDateTime.now();
     }
     public String getPlaca(){
@@ -34,7 +34,6 @@ public class RegistroAcesso {
     public int getId() {
         return id;
     }
-
     public void registrarSaida() {
         this.saida = LocalDateTime.now();
     }

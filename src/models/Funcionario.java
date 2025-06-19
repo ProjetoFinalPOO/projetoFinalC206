@@ -1,8 +1,11 @@
 package models;
 
 public class Funcionario extends Pessoa {
-    public Funcionario(String nome, String documento) {
+    private int matricula;
+
+    public Funcionario(String nome, String documento, int matricula) {
         super(nome, documento);
+        this.matricula = matricula;
     }
 
     @Override

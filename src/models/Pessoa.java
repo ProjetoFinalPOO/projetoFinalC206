@@ -9,8 +9,8 @@ public abstract class Pessoa implements Tarifa {
         this.nome = nome;
         this.documento = documento;
     }
+    
     // Getters e Setters
-
     public String getNome() {
         return this.nome;
     }
