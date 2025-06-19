@@ -19,12 +19,12 @@ public class Vaga {
         return estado;
     }
     // Put vaga
-    public void OcuparVaga(RegistroAcesso registro) {
+    public void ocuparVaga(RegistroAcesso registro) {
         this.estado = true;
         this.registro = registro;
     }
 
-    public void LiberarVaga() {
+    public void liberarVaga() {
         this.estado = false;
         if (registro != null) {
             registro.registrarSaida();

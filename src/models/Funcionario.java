@@ -5,4 +5,9 @@ public class Funcionario extends Pessoa {
         super(nome, documento);
     }
 
+    @Override
+    public double calcularTarifa(long minutos){
+        return 0.0; // funcionario nao paga tarifa
+    }
+
 }

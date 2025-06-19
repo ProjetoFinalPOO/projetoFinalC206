@@ -1,6 +1,6 @@
 package models;
 
-public class Visitante extends Pessoa implements Tarifa {
+public class Visitante extends Pessoa {
 
     public Visitante(String nome, String documento) {
         super(nome, documento);

@@ -19,8 +19,8 @@ public class RegistroAcesso {
     public String getPlaca(){
         return this.veiculo.getPlaca();
     }
-    public String getPessoa(){
-        return this.pessoa.getNome();
+    public Pessoa getPessoa(){
+        return this.pessoa;
     }
     public LocalDateTime getSaida() {
         return this.saida;

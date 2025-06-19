@@ -1,10 +1,8 @@
 package controller;
 
-import models.*;
-import sensor.Sensor;
-
 import java.io.*;
 import java.util.*;
+import models.*;
 
 public class Estacionamento {
     private List<Vaga> vagas = new ArrayList<>();
@@ -51,18 +49,18 @@ public class Estacionamento {
     public void salvarRegistros(String caminho) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(caminho))) {
             writer.println("Nome,Documento,Placa,Modelo,Vaga,Entrada,Saida,Valor");
-            for (RegistroAcesso r : registros) {
-                writer.println(r.getPessoa().getNome() + "," +
-                               r.getPessoa().getDocumento() + "," +
-                               r.getPlaca() + "," +
-                               r.getVeiculo().getModelo() + "," +
-                               r.getIdVaga() + "," +
-                               r.getEntrada() + "," +
-                               r.getSaida() + "," +
-                               r.calcularValor());
+            for (RegistroAcesso registro : registros) {
+                writer.println(registro.getPessoa().getNome() + "," +
+                               registro.getPessoa().getDocumento() + "," +
+                               registro.getPlaca() + "," +
+                               registro.getVeiculo().getModelo() + "," +
+                               registro.getId() + "," +
+                               registro.getEntrada() + "," +
+                               registro.getSaida() + "," +
+                               registro.calcularValor());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Erro ao salvar registros: " + e.getMessage());
         }
     }
 }
