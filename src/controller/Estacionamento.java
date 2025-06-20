@@ -1,17 +1,21 @@
 package controller;
 
+import db.*;
 import java.io.*;
+import java.sql.SQLException;
 import java.util.*;
 import models.*;
 
 public class Estacionamento {
     private List<Vaga> vagas = new ArrayList<>();
     private List<RegistroAcesso> registros = new ArrayList<>();
+    private DataBase db;
 
     public Estacionamento(int totalVagas) {
         for (int i = 1; i <= totalVagas; i++) {
             vagas.add(new Vaga(i));
         }
+        RegistroDB.criarTabela(db);
     }
 
     public boolean registrarEntrada(Pessoa pessoa, Veiculo veiculo, int numeroVaga) {
@@ -21,14 +25,19 @@ public class Estacionamento {
         }
         
         Vaga vaga = vagas.get(numeroVaga - 1); // -1 porque a lista começa em 0
+              if (vaga.estaOcupada()) return false;
         
-        if (!vaga.getEstado()) {
-            RegistroAcesso novo = new RegistroAcesso(pessoa, veiculo, numeroVaga);
-            vaga.ocuparVaga(novo);
-            registros.add(novo);
+        RegistroAcesso registro = new RegistroAcesso(pessoa, veiculo, vagaId);
+        vaga.ocupar(registro);
+        
+        try {
+            RegistroDB.salvarRegistro(database, registro);
             return true;
+        } catch (SQLException e) {
+            vaga.liberar();
+            return false;
         }
-        return false;
+     
     }
 
     public void registrarSaida(String placa) {
