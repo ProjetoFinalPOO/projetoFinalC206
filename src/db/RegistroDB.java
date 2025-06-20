@@ -7,7 +7,8 @@ import models.Funcionario;
 import models.Pessoa;
 import models.Veiculo;
 import models.Visitante;
-import DataBase.DataBase;
+import DataBase.*;
+import models.RegistroAcesso;
 
 public class RegistroDB {
 
@@ -17,7 +18,7 @@ public class RegistroDB {
                 + "nome VARCHAR(100) NOT NULL,"
                 + "documento VARCHAR(20) NOT NULL,"
                 + "is_funcionario BOOLEAN NOT NULL DEFAULT FALSE,"
-                + "matricula VARCHAR NOT NULL,"
+                + "matricula VARCHAR,"
                 + "placa_veiculo VARCHAR(10) NOT NULL,"
                 + "modelo VARCHAR(50) NOT NULL,"
                 + "vaga INTEGER NOT NULL,"
@@ -40,26 +41,27 @@ public class RegistroDB {
         }
     }
 
-    public static void registrarEntrada(DataBase db, Pessoa pessoa, Veiculo veiculo, int vaga) {
+    public static void registrarEntrada(DataBase db, RegistroAcesso registro) {
         String sql = "INSERT INTO registros "
                 + "(nome, documento, is_funcionario, matricula, placa_veiculo, modelo, vaga, entrada) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = db.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, pessoa.getNome());
-            stmt.setString(2, pessoa.getDocumento());
-            stmt.setBoolean(3, pessoa instanceof Funcionario);
+            stmt.setString(1, registro.getPessoa().getNome());
+            stmt.setString(2, registro.getPessoa().getDocumento());
+            stmt.setBoolean(3, registro.getPessoa() instanceof Funcionario);
 
-            if (pessoa instanceof Funcionario) {
-                stmt.setInt(4, ((Funcionario) pessoa).getMatricula());
+            if (registro.getPessoa() instanceof Funcionario) {
+                stmt.setString(4, ((Funcionario) registro.getPessoa()).getMatricula());
+          
             } else {
                 stmt.setNull(4, Types.INTEGER); // Correção aqui
             }
 
-            stmt.setString(5, veiculo.getPlaca());
-            stmt.setString(6, veiculo.getModelo());
-            stmt.setInt(7, vaga);
+            stmt.setString(5, registro.getVeiculo().getPlaca());
+            stmt.setString(6, registro.getVeiculo().getModelo());
+            stmt.setInt(7, registro.getId());
             stmt.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
 
             stmt.executeUpdate();
@@ -71,7 +73,9 @@ public class RegistroDB {
     }
 
     public static void registrarSaida(DataBase db, String placa) throws SQLException {
+        //   
         String sql = "UPDATE registros SET saida = ?, valor = ? "
+        
                 + "WHERE placa_veiculo = ? AND saida IS NULL";
 
         try (Connection conn = db.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -86,6 +90,7 @@ public class RegistroDB {
             stmt.setString(3, placa);
 
             int linhas = stmt.executeUpdate();
+
             if (linhas == 0) {
                 System.out.println("Nenhum veículo encontrado ou já saiu.");
             } else {
@@ -112,17 +117,10 @@ public class RegistroDB {
                 }
                 LocalDateTime entrada = rs.getTimestamp("entrada").toLocalDateTime();
 
-                long minutos = java.time.Duration.between(entrada, saida).toMinutes();
+                long segundos = java.time.Duration.between(entrada, saida).toSeconds();
 
-                if (minutos < 0) {
-                    return 0; // Saída antes da entrada
-                } else if (minutos == 0) {
-                    return 0; // Veículo saiu no mesmo minuto
-                } else if (minutos <= 15) {
-                    return 0; // Primeiros 15 minutos são gratuitos
-                }
-
-                return minutos * 0.20; // R$ 5,00 por hora
+           
+                return segundos * 0.05; 
             }
             throw new SQLException("Veículo não encontrado");
         }
@@ -134,8 +132,9 @@ public class RegistroDB {
         // Criando visitante fictício para teste
         Pessoa visitante = new Visitante("Carlos Teste", "123456789");
         Veiculo veiculo = new Veiculo("ABC-1234", "Civic");
+        RegistroAcesso registro = new RegistroAcesso(visitante, veiculo, 1);
 
-        registrarEntrada(db, visitante, veiculo, 1);
+        registrarEntrada(db, registro);
     }
 
 }

@@ -11,7 +11,7 @@ public class DataBase {
     private Connection connection;
 
     public DataBase() {
-        this.url = "jdbc:postgresql://localhost:5432/meubanco"; ;
+        this.url = "jdbc:postgresql://localhost:5432/meubanco"; 
         this.user = "admin";
         this.password = "123123";
     }

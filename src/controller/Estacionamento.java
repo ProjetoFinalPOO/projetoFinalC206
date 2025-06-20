@@ -2,7 +2,6 @@ package controller;
 
 import db.*;
 import java.io.*;
-import java.sql.SQLException;
 import java.util.*;
 import models.*;
 
@@ -12,6 +11,7 @@ public class Estacionamento {
     private DataBase db;
 
     public Estacionamento(int totalVagas) {
+        this.db = new DataBase();
         for (int i = 1; i <= totalVagas; i++) {
             vagas.add(new Vaga(i));
         }
@@ -25,18 +25,16 @@ public class Estacionamento {
         }
         
         Vaga vaga = vagas.get(numeroVaga - 1); // -1 porque a lista começa em 0
-              if (vaga.estaOcupada()) return false;
+              if (vaga.getEstado()){
+                  return false;
+
+              }
         
-        RegistroAcesso registro = new RegistroAcesso(pessoa, veiculo, vagaId);
-        vaga.ocupar(registro);
-        
-        try {
-            RegistroDB.salvarRegistro(database, registro);
-            return true;
-        } catch (SQLException e) {
-            vaga.liberar();
-            return false;
-        }
+        RegistroAcesso registro = new RegistroAcesso(pessoa, veiculo, numeroVaga);
+        vaga.ocuparVaga(registro);
+        RegistroDB.registrarEntrada(db, registro);
+        return true;
+       
      
     }
 
@@ -45,9 +43,9 @@ public class Estacionamento {
             RegistroAcesso registro = vaga.getRegistro();
             if (registro != null && registro.getPlaca().equals(placa) && registro.getSaida() == null) {
                 vaga.liberarVaga();
-                double valor = registro.calcularValor();
-                System.out.println("Saída registrada. Valor a pagar: R$ " + valor);
-                return;
+
+                registro.registrarSaida();
+           
             }
         }
         System.out.println("Veículo com placa " + placa + " não encontrado ou já saiu.");
@@ -79,8 +77,8 @@ public class Estacionamento {
                              registro.getVeiculo().getModelo() + "," +
                              registro.getId() + "," +
                              registro.getEntrada() + "," +
-                             registro.getSaida() + "," +
-                             registro.calcularValor());
+                             registro.getSaida() + "," 
+                        );
             }
         } catch (IOException e) {
             System.out.println("Erro ao salvar registros: " + e.getMessage());

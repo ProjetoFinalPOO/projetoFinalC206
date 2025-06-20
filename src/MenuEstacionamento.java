@@ -47,6 +47,7 @@ public class MenuEstacionamento {
         
         System.out.println("Escolha o número da vaga desejada: ");
         int numeroVaga = scanner.nextInt();
+        scanner.nextLine(); // Limpa o buffer do scanner
         
         System.out.println("Nome do cliente: ");
         String nome = scanner.nextLine();
@@ -61,7 +62,7 @@ public class MenuEstacionamento {
         String modelo = scanner.nextLine();
 
         // Criando uma pessoa (funcionário ou visitante)
-        Pessoa pessoa = criarPessoa(scanner);
+        Pessoa pessoa = criarPessoa(scanner, nome, cpf);
 
         Veiculo veiculo = new Veiculo(placa, modelo);
         
@@ -71,6 +72,7 @@ public class MenuEstacionamento {
             System.out.println("Erro: Vaga " + numeroVaga + " não está disponível");
         }
     }
+
 
     private static void registrarSaida(Scanner scanner, Estacionamento estacionamento) {
         System.out.println("Registrando a saída de veículo");
@@ -86,23 +88,19 @@ public class MenuEstacionamento {
         estacionamento.registrarSaida(placa);
     }
 
-    private static Pessoa criarPessoa(Scanner scanner) {
+    private static Pessoa criarPessoa(Scanner scanner, String nome, String documento) {
         System.out.println("Tipo de pessoa:");
         System.out.println("1 - Funcionário");
         System.out.println("2 - Visitante");
         System.out.print("Escolha: ");
         int tipo = scanner.nextInt();
-
-        System.out.print("Nome: ");
-        String nome = scanner.nextLine();
-
-        System.out.print("Documento (CPF): ");
-        String documento = scanner.nextLine();
+        scanner.nextLine(); // Limpa o buffer do scanner
 
         if (tipo == 1) {
             System.out.println("Matrícula: ");
-            int matricula = scanner.nextInt();
-            return new Funcionario(nome, documento, tipo);
+            String matricula = scanner.nextLine();
+
+            return new Funcionario(nome, documento, matricula);
         } else {
             return new Visitante(nome, documento);
         }

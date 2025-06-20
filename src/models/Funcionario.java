@@ -1,9 +1,9 @@
 package models;
 
 public class Funcionario extends Pessoa {
-    private int matricula;
+    private String matricula;
 
-    public Funcionario(String nome, String documento, int matricula) {
+    public Funcionario(String nome, String documento, String matricula) {
         super(nome, documento);
         this.matricula = matricula;
     }
@@ -13,7 +13,7 @@ public class Funcionario extends Pessoa {
         return 0.0; // funcionario nao paga tarifa
     }
     // Getters e Setters
-    public int getMatricula() {
+    public String getMatricula() {
         return matricula;
     }
 
