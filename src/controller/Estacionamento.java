@@ -2,7 +2,11 @@ package controller;
 
 import db.*;
 import java.io.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.*;
 import models.*;
 
@@ -36,31 +40,55 @@ public class Estacionamento {
         vaga.ocuparVaga(registro);
         RegistroDB.registrarEntrada(db, registro);
         return true;
-       
-     
+
     }
 
     public double registrarSaida(String placa) {
         for (Vaga vaga : vagas) {
             RegistroAcesso registro = vaga.getRegistro();
             if (registro != null && registro.getPlaca().equals(placa)) {
-                try {
-                    double valor = RegistroDB.registrarSaida(db, placa);
-                    registro.registrarSaida();
+                try (Connection conn = db.getConnection()) {
+                    String sqlSelect = "SELECT entrada, is_funcionario FROM registros WHERE placa_veiculo = ? AND saida IS NULL";
+                    String sqlDelete = "DELETE FROM registros WHERE placa_veiculo = ?";
 
-                    RegistroDB.registrarSaida(db, placa);
+                    LocalDateTime entrada;
+                    boolean isFuncionario;
+
+                    // Busca os dados necessários antes de apagar
+                    try (PreparedStatement stmtSelect = conn.prepareStatement(sqlSelect)) {
+                        stmtSelect.setString(1, placa);
+                        ResultSet rs = stmtSelect.executeQuery();
+                        if (rs.next()) {
+                            entrada = rs.getTimestamp("entrada").toLocalDateTime();
+                            isFuncionario = rs.getBoolean("is_funcionario");
+                        } else {
+                            throw new SQLException("Veiculo com placa " + placa + " nao encontrado ou ja registrou saida.");
+                        }
+                    }
+
+                    // Apaga o registro
+                    try (PreparedStatement stmtDelete = conn.prepareStatement(sqlDelete)) {
+                        stmtDelete.setString(1, placa);
+                        stmtDelete.executeUpdate();
+                    }
+
+                    registro.registrarSaida();
                     vaga.liberarVaga();
 
-                    // Remove o registro do banco de dados
-                    boolean removido = RegistroDB.removerRegistro(db, placa);
-                    if (!removido) {
-                        System.out.println("Aviso: Registro não foi removido do banco de dados");
+                    // Calcula e retorna o valor
+                    if (isFuncionario) {
+                        System.out.println("Saida para funcionario (isento). Placa: " + placa);
+                        return 0.0;
                     }
+                    long segundos = java.time.Duration.between(entrada, LocalDateTime.now()).toSeconds();
+                    double valor = segundos * 0.05; // Sua lógica de tarifa
+
+                    System.out.println("Saida registrada. Valor: R$ " + String.format("%.2f", valor));
                     return valor;
 
                 } catch (SQLException e) {
-                    System.out.println("Erro ao registrar saída: "  + e.getMessage());
-                    return -1; // Indica erro
+                    System.out.println("Erro ao registrar saida: " + e.getMessage());
+                    return -1;
                 }
             }
         }

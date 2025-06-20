@@ -1,0 +1,44 @@
+// Adicione este novo bloco try-catch no lugar
+try (Connection conn = db.getConnection()) {
+    String sqlSelect = "SELECT entrada, is_funcionario FROM registros WHERE placa_veiculo = ? AND saida IS NULL";
+    String sqlDelete = "DELETE FROM registros WHERE placa_veiculo = ?";
+
+    LocalDateTime entrada;
+    boolean isFuncionario;
+
+    // Busca os dados necessários antes de apagar
+    try (PreparedStatement stmtSelect = conn.prepareStatement(sqlSelect)) {
+        stmtSelect.setString(1, placa);
+        ResultSet rs = stmtSelect.executeQuery();
+        if (rs.next()) {
+            entrada = rs.getTimestamp("entrada").toLocalDateTime();
+            isFuncionario = rs.getBoolean("is_funcionario");
+        } else {
+            throw new SQLException("Veiculo com placa " + placa + " nao encontrado ou ja registrou saida.");
+        }
+    }
+
+    // Apaga o registro
+    try (PreparedStatement stmtDelete = conn.prepareStatement(sqlDelete)) {
+        stmtDelete.setString(1, placa);
+        stmtDelete.executeUpdate();
+    }
+
+    registro.registrarSaida();
+    vaga.liberarVaga();
+
+    // Calcula e retorna o valor
+    if (isFuncionario) {
+        System.out.println("Saida para funcionario (isento). Placa: " + placa);
+        return 0.0;
+    }
+    long segundos = java.time.Duration.between(entrada, LocalDateTime.now()).toSeconds();
+    double valor = segundos * 0.05; // Sua lógica de tarifa
+
+    System.out.println("Saida registrada. Valor: R$ " + String.format("%.2f", valor));
+    return valor;
+
+} catch (SQLException e) {
+    System.out.println("Erro ao registrar saida: " + e.getMessage());
+    return -1;
+}
