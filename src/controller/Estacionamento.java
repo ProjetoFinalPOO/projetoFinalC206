@@ -2,6 +2,7 @@ package controller;
 
 import db.*;
 import java.io.*;
+import java.sql.SQLException;
 import java.util.*;
 import models.*;
 
@@ -15,6 +16,7 @@ public class Estacionamento {
         for (int i = 1; i <= totalVagas; i++) {
             vagas.add(new Vaga(i));
         }
+
         RegistroDB.criarTabela(db);
     }
 
@@ -38,17 +40,32 @@ public class Estacionamento {
      
     }
 
-    public void registrarSaida(String placa) {
+    public double registrarSaida(String placa) {
         for (Vaga vaga : vagas) {
             RegistroAcesso registro = vaga.getRegistro();
-            if (registro != null && registro.getPlaca().equals(placa) && registro.getSaida() == null) {
-                vaga.liberarVaga();
+            if (registro != null && registro.getPlaca().equals(placa)) {
+                try {
+                    double valor = RegistroDB.registrarSaida(db, placa);
+                    registro.registrarSaida();
 
-                registro.registrarSaida();
-           
+                    RegistroDB.registrarSaida(db, placa);
+                    vaga.liberarVaga();
+
+                    // Remove o registro do banco de dados
+                    boolean removido = RegistroDB.removerRegistro(db, placa);
+                    if (!removido) {
+                        System.out.println("Aviso: Registro não foi removido do banco de dados");
+                    }
+                    return valor;
+
+                } catch (SQLException e) {
+                    System.out.println("Erro ao registrar saída: "  + e.getMessage());
+                    return -1; // Indica erro
+                }
             }
         }
         System.out.println("Veículo com placa " + placa + " não encontrado ou já saiu.");
+        return -1;
     }
 
     public void exibirVagasDisponiveis() {
@@ -84,4 +101,6 @@ public class Estacionamento {
             System.out.println("Erro ao salvar registros: " + e.getMessage());
         }
     }
+
+
 }

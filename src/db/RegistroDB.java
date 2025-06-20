@@ -7,7 +7,7 @@ import models.Funcionario;
 import models.Pessoa;
 import models.Veiculo;
 import models.Visitante;
-import DataBase.*;
+import DataBase.DataBase;
 import models.RegistroAcesso;
 
 public class RegistroDB {
@@ -72,7 +72,7 @@ public class RegistroDB {
         }
     }
 
-    public static void registrarSaida(DataBase db, String placa) throws SQLException {
+    public static double registrarSaida(DataBase db, String placa) throws SQLException {
         //   
         String sql = "UPDATE registros SET saida = ?, valor = ? "
         
@@ -92,10 +92,9 @@ public class RegistroDB {
             int linhas = stmt.executeUpdate();
 
             if (linhas == 0) {
-                System.out.println("Nenhum veículo encontrado ou já saiu.");
-            } else {
-                System.out.println("Saída registrada. Valor: R$ " + valor);
-            }
+                throw new SQLException("Nenhum veículo encontrado ou já saiu.");
+            } 
+            return valor;
         }
     }
 
@@ -123,6 +122,17 @@ public class RegistroDB {
                 return segundos * 0.05; 
             }
             throw new SQLException("Veículo não encontrado");
+        }
+    }
+    public static boolean removerRegistro(DataBase db, String placa) throws SQLException {
+        String sql = "DELETE FROM registros WHERE placa_veiculo = ?";
+
+        try (Connection conn = db.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, placa);
+            int linhasAfetadas = stmt.executeUpdate();
+
+            return linhasAfetadas > 0;
         }
     }
 
