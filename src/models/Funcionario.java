@@ -9,8 +9,12 @@ public class Funcionario extends Pessoa {
     }
 
     @Override
-    public double calcularTarifa(long minutos){
+    public double calcularTaxa(double valor){
         return 0.0; // funcionario nao paga tarifa
+    }
+    // Getters e Setters
+    public int getMatricula() {
+        return matricula;
     }
 
 }

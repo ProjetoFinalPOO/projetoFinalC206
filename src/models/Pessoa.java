@@ -1,6 +1,6 @@
 package models;
 
-public abstract class Pessoa implements Tarifa {
+public abstract class Pessoa  {
 
     private String nome;
     private String documento;
@@ -27,5 +27,6 @@ public abstract class Pessoa implements Tarifa {
         this.documento = documento;
     }
     // Método abstrato para calcular tarifa
-    public abstract double calcularTarifa(long minutos); 
+    public abstract double calcularTaxa(double valor); 
+
 }

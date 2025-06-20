@@ -35,17 +35,41 @@ public class RegistroAcesso {
     public int getId() {
         return id;
     }
+    // Getters
+    public boolean isFuncionario() {
+        return pessoa instanceof Funcionario;
+    }
+
     public void registrarSaida() {
         this.saida = LocalDateTime.now();
     }
-  
     public double calcularValor() {
-        if(saida == null){
-            System.out.println("Saída não registrada para o veículo com placa: " + veiculo.getPlaca());
-            return 0.0; // Saída não registrada
+        if (saida == null) {
+            return 0; // Saída não registrada
         }
-        // Verificar calculo de tarifa
-        long minutos = Duration.between(entrada, saida).toMinutes();
-        return pessoa.calcularTarifa(minutos);
+        
+        long minutosNoEstacionamento = Duration.between(entrada, saida).toMinutes();
+        if (minutosNoEstacionamento < 0) {
+            return 0; // Saída antes da entrada
+        }
+        else if (minutosNoEstacionamento == 0) {
+            return 0; // Veículo saiu no mesmo minuto
+        }
+        else if (minutosNoEstacionamento <= 15) {
+            return 0; // Primeiros 15 minutos são gratuitos
+        }
+        long horas = minutosNoEstacionamento / 60;
+      
+        
+        if (pessoa instanceof Funcionario) {
+            return 0; // Funcionários não pagam
+        } 
+        else if (pessoa instanceof Visitante) {
+            return ((Visitante)pessoa).calcularValorEstacionamento(horas);
+        }
+        return 0;
     }
+
+ 
+    
 }
